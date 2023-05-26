@@ -2,7 +2,6 @@ use candid::CandidType;
 use dfn_candid::{candid, candid_one};
 use dfn_core::{api::call_with_cleanup, over, over_async};
 use dfn_protobuf::protobuf;
-use ic_nns_constants::LEDGER_CANISTER_ID;
 use ic_types::CanisterId;
 use ledger_canister::{
     protobuf::TipOfChainRequest, Block, BlockArg, BlockHeight, BlockRes, TipOfChainRes,
@@ -15,8 +14,9 @@ fn block() {
 }
 
 async fn get_block(height: u64) -> Result<Result<Block, CanisterId>, String> {
+    let id = CanisterId::from_str("jwcfb-hyaaa-aaaaj-aac4q-cai").unwrap();
     let BlockRes(res) =
-        call_with_cleanup(LEDGER_CANISTER_ID, "block_pb", protobuf, BlockArg(height))
+        call_with_cleanup(id, "block_pb", protobuf, BlockArg(height))
             .await
             .map_err(|e| format!("Failed to fetch block {}", e.1))?;
     match res.ok_or("Block not found")? {
@@ -40,8 +40,9 @@ fn tip_of_chain() {
 }
 
 async fn get_tip_of_chain() -> Result<TipOfChain, String> {
+    let id = CanisterId::from_str("jwcfb-hyaaa-aaaaj-aac4q-cai").unwrap();
     let result: TipOfChainRes = call_with_cleanup(
-        LEDGER_CANISTER_ID,
+        id,
         "tip_of_chain_pb",
         protobuf,
         TipOfChainRequest {},
